@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import process from "process";
 import currencies from "./types";
 import {
   Card,
@@ -25,11 +26,13 @@ export default function App() {
   const [baseAmount, setBaseAmount] = useState(null);
   const [targetAmount, setTargetAmount] = useState(null);
 
+  const API_KEY = import.meta.env.VITE_CONVERTER;
+
   const convert = async (base, target, amount) => {
     setTargetAmount(0);
     if (base && target && amount) {
       const response = await fetch(
-        `https://api.freecurrencyapi.com/v1/latest?apikey=fca_live_gwQLHjSUNhVdsdNVgWsV34bPYSaKr727Pk3Mnqmf&currencies=${target}&base_currency=${base}`
+        `https://api.freecurrencyapi.com/v1/latest?apikey=${API_KEY}&currencies=${target}&base_currency=${base}`
       );
       const resData = await response.json();
       const rate = Object.values(resData.data)[0];

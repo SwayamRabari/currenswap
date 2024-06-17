@@ -35,13 +35,3 @@ const currencies = [
 ];
 
 export default currencies;
-
-
-// const curreData = {
-//   data: {
-//     EUR: 0.0111790106,
-//   },
-// };
-
-// // access that rate
-// console.log(Object.values(curreData.data)[0]);
