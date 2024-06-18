@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import process from "process";
 import currencies from "./types";
 import {
   Card,
@@ -20,31 +19,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import "./index.css";
+
 export default function App() {
-  const [baseCurrency, setBaseCurrency] = useState(null);
-  const [targetCurrency, setTargetCurrency] = useState(null);
-  const [baseAmount, setBaseAmount] = useState(null);
-  const [targetAmount, setTargetAmount] = useState(null);
+  const [baseCurrency, setBaseCurrency] = useState("USD");
+  const [targetCurrency, setTargetCurrency] = useState("EUR");
+  const [baseAmount, setBaseAmount] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const API_KEY = import.meta.env.VITE_CONVERTER;
 
-  const convert = async (base, target, amount) => {
-    setTargetAmount(0);
-    if (base && target && amount) {
+  const convert = useCallback(async (base, target, amount) => {
+    try {
+      setLoading(true);
+      setError("");
+      if (!base || !target || !amount) {
+        setError("Please fill in all fields.");
+        setLoading(false);
+        return;
+      }
       const response = await fetch(
         `https://api.freecurrencyapi.com/v1/latest?apikey=${API_KEY}&currencies=${target}&base_currency=${base}`
       );
+      if (!response.ok) {
+        throw new Error("Failed to fetch exchange rate");
+      }
       const resData = await response.json();
       const rate = Object.values(resData.data)[0];
+      if (!rate) {
+        throw new Error("Invalid exchange rate data");
+      }
       const convertedAmount = (amount * rate).toFixed(2);
-      console.log(convertedAmount);
       setTargetAmount(convertedAmount);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-  };
+  });
 
   return (
     <>
-      <Card className="w-[100vw] sm:w-[380px] ">
+      <Card className="w-[100vw] sm:w-[380px]">
         <CardHeader>
           <CardTitle className="text-3xl font-bold">Currenswap</CardTitle>
           <CardDescription className="font-semibold text-base">
@@ -52,6 +69,7 @@ export default function App() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-6">
+          {error && <p className="text-red-500 font-semibold">{error}</p>}
           <Nestcard>
             <CardContent className="pt-4 pb-6 grid grid-cols-1 gap-3">
               <div className="fromhead flex justify-between">
@@ -68,14 +86,13 @@ export default function App() {
                   placeholder="Amount"
                   className="w-full text-base text-primary font-semibold"
                   onChange={(e) => setBaseAmount(e.target.value)}
-                  defaultValue={baseAmount}
+                  value={baseAmount}
+                  min="0"
                 ></Input>
                 <div className="fromvaluetype">
                   <Select
-                    onValueChange={(value) => {
-                      setBaseCurrency(value);
-                      console.log(value);
-                    }}
+                    onValueChange={(value) => setBaseCurrency(value)}
+                    value={baseCurrency}
                   >
                     <SelectTrigger className="w-[100px] font-semibold text-base">
                       <SelectValue placeholder="Select" />
@@ -107,15 +124,13 @@ export default function App() {
                   type="number"
                   placeholder="Amount"
                   className="w-full text-base text-primary font-semibold"
-                  defaultValue={targetAmount}
+                  value={targetAmount}
                   readOnly
                 ></Input>
                 <div className="fromvaluetype">
                   <Select
-                    onValueChange={(value) => {
-                      setTargetCurrency(value);
-                      console.log(value);
-                    }}
+                    onValueChange={(value) => setTargetCurrency(value)}
+                    value={targetCurrency}
                   >
                     <SelectTrigger className="w-[100px] font-semibold text-base">
                       <SelectValue placeholder="Select" />
@@ -135,17 +150,20 @@ export default function App() {
         </CardContent>
         <CardFooter className="grid grid-cols-1 gap-3">
           <Button
-            onClick={() => {
-              convert(baseCurrency, targetCurrency, baseAmount);
-            }}
+            onClick={() => convert(baseCurrency, targetCurrency, baseAmount)}
             className="w-full text-base"
+            disabled={loading}
           >
-            Convert
+            {loading ? "Converting..." : "Convert"}
           </Button>
           <Button
             className="w-full text-base"
             onClick={() => {
-              window.location.reload();
+              setBaseCurrency("");
+              setTargetCurrency("");
+              setBaseAmount("");
+              setTargetAmount("");
+              setError("");
             }}
           >
             Reset
