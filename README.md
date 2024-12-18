@@ -1,8 +1,12 @@
-# React + Vite
+# Currenswap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Currenswap is a React-based web application designed for effortless currency conversion. Built with Vite for fast development and Tailwind CSS for styling, the app provides a user-friendly interface to convert amounts between different currencies. Users can select base and target currencies, input the amount to convert, and get the converted amount instantly. The app leverages the Free Currency API for real-time exchange rates and includes features like error handling and a reset button for convenience. The UI components are modular and reusable, ensuring a clean and maintainable codebase.
 
-Currently, two official plugins are available:
+![Currenswap Demo](./public/demo.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- Real-time currency conversion
+- Selectable base and target currencies
+- Error handling for invalid inputs
+- Reset button to clear inputs
+- Modular and reusable UI components
